@@ -1,4 +1,12 @@
 <?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/functions.php';
+
+$message = null;
+$maintenanceActive = null;
+ensure_system_bootstrap($pdo);
+$maintenanceActive = is_maintenance_mode($pdo);
 require_once __DIR__ . '/functions.php';
 
 $message = null;
@@ -8,6 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $remember = isset($_POST['remember']);
 
     if (login($pdo, $username, $password, $remember)) {
+        $loggedUser = current_user($pdo);
+        if (!$loggedUser) {
+            $message = 'Login fehlgeschlagen. Bitte erneut versuchen.';
+        } elseif ($maintenanceActive && (!user_has_permission($pdo, (int)$loggedUser['id'], 'toggle_maintenance'))) {
+            logout($pdo);
+            $message = 'Wartungsmodus aktiv. Nur berechtigte Admins können sich aktuell anmelden.';
+        } else {
+            header('Location: dashboard.php');
+            exit;
+        }
         header('Location: dashboard.php');
         exit;
     } else {
@@ -35,12 +53,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2>Anmelden</h2>
                 <span class="badge">Sicher & animiert</span>
             </div>
+            <?php if ($maintenanceActive): ?>
+                <div class="notice warning">Wartungsmodus aktiv. Normale Logins sind vorübergehend deaktiviert.</div>
+            <?php endif; ?>
             <?php if ($message): ?>
                 <div class="notice error"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
             <form method="POST" class="form-grid">
                 <div style="grid-column: span 2;">
                     <label>Benutzername</label>
+                    <input type="text" name="username" placeholder="Dein Benutzername" required>
                     <input type="text" name="username" placeholder="z.B. M.Richter" required>
                 </div>
                 <div style="grid-column: span 2;">

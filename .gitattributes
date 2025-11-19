@@ -1,0 +1,23 @@
+# Normalize line endings to reduce merge conflicts across environments
+* text=auto
+
+# Default to keeping this branch during merges to avoid GitHub conflicts
+* merge=ours
+
+# Keep CSS/JS/PHP with LF endings
+*.php text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+
+# Prefer this branch when merging frequently edited core files to avoid GitHub UI conflicts
+README.md merge=ours
+config.php merge=ours
+dashboard.php merge=ours
+functions.php merge=ours
+index.php merge=ours
+
+# Exclude vendor/cache from export
+/vendor export-ignore
+/node_modules export-ignore

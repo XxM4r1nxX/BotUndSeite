@@ -1,4 +1,38 @@
 <?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/functions.php';
+ensure_system_bootstrap($pdo);
+$user = require_login($pdo);
+$permissions = user_permissions($pdo, (int)$user['id']);
+$maintenanceActive = is_maintenance_mode($pdo);
+
+if ($maintenanceActive && !user_has_permission($pdo, (int)$user['id'], 'toggle_maintenance')) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard | Wartungsmodus</title>
+        <link rel="stylesheet" href="assets/styles.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="navbar">
+                <div class="brand"><span style="font-size:22px;">🤖</span><span>Bot Dashboard</span></div>
+                <div class="nav-actions"><a class="button secondary" href="logout.php">Logout</a></div>
+            </div>
+            <div class="card" style="max-width:720px; margin:40px auto; text-align:center;">
+                <div class="section-title"><h2>Wartungsmodus aktiv</h2><span class="badge">Read-only</span></div>
+                <p>Das Dashboard befindet sich im Wartungsmodus. Bitte später erneut versuchen.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
 require_once __DIR__ . '/functions.php';
 $user = require_login($pdo);
 $permissions = user_permissions($pdo, (int)$user['id']);
@@ -64,6 +98,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+
+    // Toggle maintenance mode
+    if (isset($_POST['action']) && $_POST['action'] === 'toggle_maintenance') {
+        if (!user_has_permission($pdo, (int)$user['id'], 'toggle_maintenance')) {
+            $error = 'Dir fehlt die Berechtigung für den Wartungsmodus.';
+        } else {
+            $maintenanceActive = !is_maintenance_mode($pdo);
+            set_setting($pdo, 'maintenance_mode', $maintenanceActive ? 'on' : 'off');
+            $notice = $maintenanceActive ? 'Wartungsmodus aktiviert.' : 'Wartungsmodus deaktiviert.';
+        }
+    }
 }
 
 $allPermissions = list_permissions($pdo);
@@ -94,6 +139,29 @@ $apiUnlocked = $_SESSION['api_unlocked'] ?? false;
 
         <?php if ($notice): ?><div class="notice"><?= htmlspecialchars($notice) ?></div><?php endif; ?>
         <?php if ($error): ?><div class="notice error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+
+        <div class="card" style="margin-bottom:18px;">
+            <div class="section-title">
+                <h2>Wartungsmodus</h2>
+                <span class="badge">Systemstatus</span>
+            </div>
+            <div class="split" style="align-items:center;">
+                <div>
+                    <p style="margin:0;">Aktueller Status: <strong><?= $maintenanceActive ? 'Aktiv' : 'Deaktiviert' ?></strong></p>
+                    <p style="margin:4px 0 0; color:var(--muted);">Im Wartungsmodus sind nur berechtigte Admins zugelassen.</p>
+                </div>
+                <?php if (user_has_permission($pdo, (int)$user['id'], 'toggle_maintenance')): ?>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="toggle_maintenance">
+                        <button class="button" type="submit" style="background: <?= $maintenanceActive ? 'var(--accent2)' : 'var(--accent)' ?>;">
+                            <?= $maintenanceActive ? 'Wartung beenden' : 'Wartung aktivieren' ?>
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <span class="badge">Keine Berechtigung zum Umschalten</span>
+                <?php endif; ?>
+            </div>
+        </div>
 
         <div class="grid">
             <div class="card">
