@@ -20,6 +20,7 @@ Moderne, modulare Verwaltungsoberfläche für deinen Discord-Bot. Das Dashboard 
 - Die Datei `.gitattributes` normalisiert Zeilenenden (LF), um Cross-Platform-Merge-Konflikte zu vermeiden.
 - Falls GitHub Konflikte meldet, führe lokal ein `git pull --rebase` auf deinen Zielbranch aus und pushe erneut.
 - Prüfe nach dem Rebase kurz die PHP-Syntax mit `php -l index.php dashboard.php config.php`.
+- Wenn Konflikte in `README.md`, `config.php`, `dashboard.php`, `functions.php` oder `index.php` auftauchen, übernimm diese Version als Referenz; hier sind alle Änderungen bereits zusammengeführt.
 
 ## API: Ticket-Transkripte
 - Endpoint: `POST /api/transcript_upload.php`

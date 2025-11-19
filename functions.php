@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 require_once __DIR__ . '/config.php';
 session_start();
 
@@ -168,4 +170,3 @@ function delete_transcript(PDO $pdo, int $id): void
     }
     $pdo->prepare("DELETE FROM transcripts WHERE id = :id")->execute([':id' => $id]);
 }
-?>

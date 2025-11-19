@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 // Database configuration and bootstrap
 $host = "localhost";
 $dbname = "ticketsystem_webseite";
@@ -115,5 +117,3 @@ foreach ($permIds as $permId) {
 
 // Seed maintenance mode off by default
 $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES ('maintenance_mode', 'off')")->execute();
-
-?>
