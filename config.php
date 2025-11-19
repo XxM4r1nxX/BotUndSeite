@@ -101,13 +101,6 @@ function bootstrap_admin(PDO $pdo): void
         $adminId = (int)$pdo->lastInsertId();
     } else {
         $adminId = (int)$admin['id'];
-        if (!password_verify(DEFAULT_ADMIN_PASSWORD, $admin['password_hash'])) {
-            $reset = $pdo->prepare("UPDATE users SET password_hash = :hash, remember_token = NULL, remember_expires = NULL WHERE id = :id");
-            $reset->execute([
-                ':hash' => password_hash(DEFAULT_ADMIN_PASSWORD, PASSWORD_DEFAULT),
-                ':id' => $adminId
-            ]);
-        }
     }
 
     $stmt = $pdo->query("SELECT id FROM permissions");
