@@ -126,3 +126,42 @@ function bootstrap_settings(PDO $pdo): void
 bootstrap_permissions($pdo);
 bootstrap_admin($pdo);
 bootstrap_settings($pdo);
+// Seed permissions
+$defaultPermissions = [
+    'view_transcripts' => 'Transkripte ansehen',
+    'download_transcripts' => 'Transkripte herunterladen',
+    'delete_transcripts' => 'Transkripte löschen',
+    'manage_users' => 'Benutzer & Rechte verwalten',
+    'api_docs' => 'API-Bereich öffnen',
+    'transcript_api_upload' => 'Transkript-API nutzen'
+];
+
+foreach ($defaultPermissions as $code => $label) {
+    $stmt = $pdo->prepare("INSERT IGNORE INTO permissions (code, label) VALUES (:code, :label)");
+    $stmt->execute([':code' => $code, ':label' => $label]);
+}
+
+// Seed admin user
+$adminUsername = 'M.Richter';
+$adminPassword = 'TestBot';
+
+$stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username");
+$stmt->execute([':username' => $adminUsername]);
+$adminId = $stmt->fetchColumn();
+
+if (!$adminId) {
+    $hash = password_hash($adminPassword, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (:username, :hash)");
+    $stmt->execute([':username' => $adminUsername, ':hash' => $hash]);
+    $adminId = (int)$pdo->lastInsertId();
+}
+
+// Grant admin all permissions
+$stmt = $pdo->query("SELECT id FROM permissions");
+$permIds = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+foreach ($permIds as $permId) {
+    $link = $pdo->prepare("INSERT IGNORE INTO user_permissions (user_id, permission_id) VALUES (:user_id, :perm_id)");
+    $link->execute([':user_id' => $adminId, ':perm_id' => $permId]);
+}
+
+?>

@@ -4,6 +4,7 @@ Moderne, modulare Verwaltungsoberfläche für deinen Discord-Bot. Das Dashboard 
 
 ## Features
 - Login mit 24h-"angemeldet bleiben" Option.
+- Login mit 24h-"angemeldet bleiben" Option (Admin-Standard: `M.Richter` / `TestBot`).
 - Automatisches Einrichten der MySQL-Datenbank (`ticketsystem_webseite`) und aller Tabellen/Standardrechte.
 - Rollenbasiertes Berechtigungssystem mit Verwaltung im Dashboard.
 - Ticket-Transkript-Modul: HTML-Uploads via API, Anzeige, Download und Löschung nach Rechten.

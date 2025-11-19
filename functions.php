@@ -12,6 +12,9 @@ function ensure_system_bootstrap(PDO $pdo): void
     bootstrap_settings($pdo);
 }
 
+require_once __DIR__ . '/config.php';
+session_start();
+
 function current_user(PDO $pdo): ?array
 {
     if (isset($_SESSION['user_id'])) {
@@ -64,6 +67,8 @@ function login(PDO $pdo, string $username, string $password, bool $remember): bo
     // Defensive: make sure default credentials and permissions are always present before any login attempt.
     ensure_system_bootstrap($pdo);
 
+function login(PDO $pdo, string $username, string $password, bool $remember): bool
+{
     $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
     $stmt->execute([':username' => $username]);
     $user = $stmt->fetch();
@@ -181,3 +186,4 @@ function delete_transcript(PDO $pdo, int $id): void
     }
     $pdo->prepare("DELETE FROM transcripts WHERE id = :id")->execute([':id' => $id]);
 }
+?>

@@ -33,6 +33,9 @@ if ($maintenanceActive && !user_has_permission($pdo, (int)$user['id'], 'toggle_m
     <?php
     exit;
 }
+require_once __DIR__ . '/functions.php';
+$user = require_login($pdo);
+$permissions = user_permissions($pdo, (int)$user['id']);
 
 $notice = null;
 $error = null;
