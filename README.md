@@ -16,6 +16,11 @@ Moderne, modulare Verwaltungsoberfläche für deinen Discord-Bot. Das Dashboard 
 2. Lege den Projektordner in deinen Webserver-Dokumenten ab (oder starte `php -S localhost:8000`).
 3. Rufe `index.php` im Browser auf und melde dich an.
 
+## Merge-Hinweise
+- Die Datei `.gitattributes` normalisiert Zeilenenden (LF), um Cross-Platform-Merge-Konflikte zu vermeiden.
+- Falls GitHub Konflikte meldet, führe lokal ein `git pull --rebase` auf deinen Zielbranch aus und pushe erneut.
+- Prüfe nach dem Rebase kurz die PHP-Syntax mit `php -l index.php dashboard.php config.php`.
+
 ## API: Ticket-Transkripte
 - Endpoint: `POST /api/transcript_upload.php`
 - Body (multipart/form-data):

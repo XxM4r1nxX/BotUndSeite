@@ -1,0 +1,13 @@
+# Normalize line endings to reduce merge conflicts across environments
+* text=auto
+
+# Keep CSS/JS/PHP with LF endings
+*.php text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+
+# Exclude vendor/cache from export
+/vendor export-ignore
+/node_modules export-ignore
