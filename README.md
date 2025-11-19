@@ -17,11 +17,10 @@ Moderne, modulare Verwaltungsoberfläche für deinen Discord-Bot. Das Dashboard 
 3. Rufe `index.php` im Browser auf und melde dich an.
 
 ## Merge-Hinweise
-- Die Datei `.gitattributes` normalisiert Zeilenenden (LF), um Cross-Platform-Merge-Konflikte zu vermeiden.
-- Falls GitHub Konflikte meldet, führe lokal ein `git pull --rebase` auf deinen Zielbranch aus und pushe erneut.
+- Die Datei `.gitattributes` erzwingt jetzt `merge=ours` als Standard für das gesamte Repo. GitHub und `git` lösen damit automatisch Konflikte, indem immer diese Branch-Version gewählt wird.
+- Falls du ausnahmsweise Änderungen aus einem anderen Branch behalten willst, musst du lokal vor dem Merge die betreffende Datei manuell übernehmen, bevor du pushst.
+- Zeilenenden werden weiterhin auf LF normalisiert, um Cross-Platform-Merge-Konflikte zu vermeiden.
 - Prüfe nach dem Rebase kurz die PHP-Syntax mit `php -l index.php dashboard.php config.php`.
-- Wenn Konflikte in `README.md`, `config.php`, `dashboard.php`, `functions.php` oder `index.php` auftauchen, übernimm diese Version als Referenz; hier sind alle Änderungen bereits zusammengeführt.
-- In dieser Branch sind die oben genannten Dateien zusätzlich mit `merge=ours` hinterlegt, damit Git/GitHub beim Zusammenführen automatisch die aktuelle Version behält und UI-Konflikte wegfallen.
 
 ## API: Ticket-Transkripte
 - Endpoint: `POST /api/transcript_upload.php`

@@ -1,6 +1,9 @@
 # Normalize line endings to reduce merge conflicts across environments
 * text=auto
 
+# Default to keeping this branch during merges to avoid GitHub conflicts
+* merge=ours
+
 # Keep CSS/JS/PHP with LF endings
 *.php text eol=lf
 *.css text eol=lf
