@@ -7,9 +7,6 @@ $message = null;
 $maintenanceActive = null;
 ensure_system_bootstrap($pdo);
 $maintenanceActive = is_maintenance_mode($pdo);
-require_once __DIR__ . '/functions.php';
-
-$message = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');
@@ -26,8 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: dashboard.php');
             exit;
         }
-        header('Location: dashboard.php');
-        exit;
     } else {
         $message = 'Login fehlgeschlagen. Bitte prüfe Benutzername und Passwort.';
     }
@@ -63,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div style="grid-column: span 2;">
                     <label>Benutzername</label>
                     <input type="text" name="username" placeholder="Dein Benutzername" required>
-                    <input type="text" name="username" placeholder="z.B. M.Richter" required>
                 </div>
                 <div style="grid-column: span 2;">
                     <label>Passwort</label>
@@ -77,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <button class="button" type="submit">Login</button>
                 </div>
             </form>
-            <p style="margin-top:16px; color: var(--muted);">Standard-Admin: <strong>M.Richter</strong> / <strong>TestBot</strong></p>
         </div>
         <footer>Entwickelt für modulare Erweiterbarkeit – Ticket-Transcripte, APIs und mehr.</footer>
     </div>

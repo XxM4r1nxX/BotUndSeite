@@ -1,11 +1,40 @@
 <?php
 declare(strict_types=1);
 
+// Basic hardening: log errors to a local file so runtime problems don't surface as blank HTTP 500 pages
+$logDir = __DIR__ . '/logs';
+if (!is_dir($logDir)) {
+    mkdir($logDir, 0775, true);
+}
+ini_set('log_errors', '1');
+ini_set('error_log', $logDir . '/php-error.log');
+error_reporting(E_ALL);
+
+function fail_gracefully(string $message): void
+{
+    http_response_code(500);
+    if (PHP_SAPI === 'cli') {
+        fwrite(STDERR, $message . PHP_EOL);
+    } else {
+        echo '<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Fehler</title>';
+        echo '<link rel="stylesheet" href="assets/styles.css"></head><body><div class="container">';
+        echo '<div class="card"><div class="section-title"><h2>Unerwarteter Fehler</h2><span class="badge">Server</span></div>';
+        echo '<p>' . htmlspecialchars($message) . '</p>';
+        echo '<p style="color:var(--muted);">Details wurden im Server-Log gespeichert.</p></div></div></body></html>';
+    }
+    exit;
+}
+
 // Database configuration and bootstrap
 $host = "localhost";
 $dbname = "ticketsystem_webseite";
 $user = "webseite_discord";
 $pass = "~MiPmoss1on31w@Z";
+
+$drivers = PDO::getAvailableDrivers();
+if (!in_array('mysql', $drivers, true)) {
+    fail_gracefully('Der MySQL PDO-Treiber fehlt. Bitte php-mysql (pdo_mysql) aktivieren.');
+}
 
 $dsnNoDb = "mysql:host={$host};charset=utf8mb4";
 $options = [
@@ -19,14 +48,14 @@ try {
     $pdoBootstrap = new PDO($dsnNoDb, $user, $pass, $options);
     $pdoBootstrap->exec("CREATE DATABASE IF NOT EXISTS `{$dbname}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 } catch (PDOException $e) {
-    die('Database bootstrap failed: ' . htmlspecialchars($e->getMessage()));
+    fail_gracefully('Database bootstrap failed: ' . $e->getMessage());
 }
 
 $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (PDOException $e) {
-    die('Connection failed: ' . htmlspecialchars($e->getMessage()));
+    fail_gracefully('Connection failed: ' . $e->getMessage());
 }
 
 // Ensure tables exist
@@ -126,42 +155,3 @@ function bootstrap_settings(PDO $pdo): void
 bootstrap_permissions($pdo);
 bootstrap_admin($pdo);
 bootstrap_settings($pdo);
-// Seed permissions
-$defaultPermissions = [
-    'view_transcripts' => 'Transkripte ansehen',
-    'download_transcripts' => 'Transkripte herunterladen',
-    'delete_transcripts' => 'Transkripte löschen',
-    'manage_users' => 'Benutzer & Rechte verwalten',
-    'api_docs' => 'API-Bereich öffnen',
-    'transcript_api_upload' => 'Transkript-API nutzen'
-];
-
-foreach ($defaultPermissions as $code => $label) {
-    $stmt = $pdo->prepare("INSERT IGNORE INTO permissions (code, label) VALUES (:code, :label)");
-    $stmt->execute([':code' => $code, ':label' => $label]);
-}
-
-// Seed admin user
-$adminUsername = 'M.Richter';
-$adminPassword = 'TestBot';
-
-$stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username");
-$stmt->execute([':username' => $adminUsername]);
-$adminId = $stmt->fetchColumn();
-
-if (!$adminId) {
-    $hash = password_hash($adminPassword, PASSWORD_DEFAULT);
-    $stmt = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (:username, :hash)");
-    $stmt->execute([':username' => $adminUsername, ':hash' => $hash]);
-    $adminId = (int)$pdo->lastInsertId();
-}
-
-// Grant admin all permissions
-$stmt = $pdo->query("SELECT id FROM permissions");
-$permIds = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-foreach ($permIds as $permId) {
-    $link = $pdo->prepare("INSERT IGNORE INTO user_permissions (user_id, permission_id) VALUES (:user_id, :perm_id)");
-    $link->execute([':user_id' => $adminId, ':perm_id' => $permId]);
-}
-
-?>
