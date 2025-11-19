@@ -4,6 +4,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 session_start();
 
+function ensure_system_bootstrap(PDO $pdo): void
+{
+    // Re-run bootstrap steps defensively in case of manual DB changes.
+    bootstrap_permissions($pdo);
+    bootstrap_admin($pdo);
+    bootstrap_settings($pdo);
+}
+
 function current_user(PDO $pdo): ?array
 {
     if (isset($_SESSION['user_id'])) {

@@ -5,6 +5,7 @@ require_once __DIR__ . '/functions.php';
 
 $message = null;
 $maintenanceActive = is_maintenance_mode($pdo);
+ensure_system_bootstrap($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/functions.php';
+ensure_system_bootstrap($pdo);
 $user = require_login($pdo);
 $permissions = user_permissions($pdo, (int)$user['id']);
 $maintenanceActive = is_maintenance_mode($pdo);
